@@ -9,6 +9,7 @@ export interface Lead {
   visaCategories: VisaCategory[];
   resumeUrl: string;
   message: string;
+  country: string;
   status: "PENDING" | "REACHED_OUT";
   createdAt: string;
 }

@@ -16,6 +16,9 @@ export default function Home() {
                 Get Assessment
                 <ArrowRightIcon width="22" height="22" />
               </Button>
+              <Button href="/login" size="lg" variant="outline">
+                Login
+              </Button>
             </div>
           </div>
         </div>
