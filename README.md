@@ -8,8 +8,6 @@
 - [Running the Application Locally](#running-the-application-locally)
 - [Design Decisions](#design-decisions)
 - [Additional Documentation](#additional-documentation)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
