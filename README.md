@@ -114,10 +114,3 @@ For detailed insights into the architectural and design decisions made in this p
 - **API Documentation**: [API_DOCS.md](./docs/API_DOCS.md)
 - **Component Guide**: [COMPONENTS.md](./docs/COMPONENTS.md)
 
-## Contributing
-
-Contributions are welcome! Please refer to [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for guidelines.
-
-## License
-
-This project is licensed under the [MIT License](./LICENSE).
