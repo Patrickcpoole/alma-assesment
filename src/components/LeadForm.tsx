@@ -1,10 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { LeadFormData, VisaCategory } from "@/types";
 import { DocumentIcon } from "./icons/DocumentIcon";
 import { DiceIcon } from "./icons/DiceIcon";
 import { HeartIcon } from "./icons/HeartIcon";
+import dynamic from "next/dynamic";
+import { useCountries } from "@/hooks/useCountries";
+
+const Select = dynamic(() => import("react-select"), { ssr: false });
 
 const VISA_OPTIONS: VisaCategory[] = [
   "O-1",
@@ -13,22 +18,124 @@ const VISA_OPTIONS: VisaCategory[] = [
   "I don't know",
 ];
 
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const isValidUrl = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export default function LeadForm() {
+  const router = useRouter();
+  const { countryOptions } = useCountries();
   const [formData, setFormData] = useState<LeadFormData>({
     firstName: "",
     lastName: "",
     email: "",
     linkedin: "",
+    country: "",
     visaCategories: [],
     resume: null,
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const validateForm = (): boolean => {
+    if (!formData.firstName.trim()) {
+      setError("First name is required");
+      return false;
+    }
+    if (!formData.lastName.trim()) {
+      setError("Last name is required");
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError("Email is required");
+      return false;
+    }
+    if (!isValidEmail(formData.email)) {
+      setError("Please enter a valid email address");
+      return false;
+    }
+    if (!formData.linkedin.trim()) {
+      setError("LinkedIn/Website URL is required");
+      return false;
+    }
+    if (!isValidUrl(formData.linkedin)) {
+      setError("Please enter a valid URL");
+      return false;
+    }
+    if (formData.visaCategories.length === 0) {
+      setError("Please select at least one visa category");
+      return false;
+    }
+    if (!formData.message.trim()) {
+      setError("Please provide some details about your case");
+      return false;
+    }
+    if (!formData.resume) {
+      setError("Please upload your resume");
+      return false;
+    }
+    if (!formData.country) {
+      setError("Please select your country of citizenship");
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement form submission
-    // For now, we'll just console.log the data
-    console.log(formData);
+    setError(null);
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("firstName", formData.firstName);
+      formDataToSend.append("lastName", formData.lastName);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("linkedin", formData.linkedin);
+      formDataToSend.append("country", formData.country);
+      formDataToSend.append(
+        "visaCategories",
+        JSON.stringify(formData.visaCategories)
+      );
+      formDataToSend.append("message", formData.message);
+      if (formData.resume) {
+        formDataToSend.append("resume", formData.resume);
+      }
+
+      const response = await fetch("/api/submit-lead", {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      console.log("form response", response);
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to submit form");
+      }
+
+      router.push("/assessment/success");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -73,30 +180,82 @@ export default function LeadForm() {
             <input
               type="email"
               placeholder="Email"
-              className="w-full p-3 rounded-lg  border border-gray-200"
+              className={`w-full p-3 rounded-lg border ${
+                formData.email && !isValidEmail(formData.email)
+                  ? "border-red-300 bg-red-50"
+                  : "border-gray-200"
+              }`}
               value={formData.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
               required
             />
-            <select
-              className="w-full p-3 rounded-lg border border-gray-200 bg-white"
+            {formData.email && !isValidEmail(formData.email) && (
+              <p className="text-red-500 text-sm mt-1">
+                Please enter a valid email address
+              </p>
+            )}
+            <Select
+              placeholder="Country of Citizenship"
+              options={countryOptions}
+              className="country-select"
+              classNamePrefix="select"
+              value={countryOptions.find(
+                (option) => option.value === formData.country
+              )}
+              onChange={(option) =>
+                setFormData({
+                  ...formData,
+                  country: (option as { value: string }).value || "",
+                })
+              }
+              isSearchable
               required
-            >
-              <option value="">Country of Citizenship</option>
-              {/* Add country options here */}
-            </select>
+            />
             <input
               type="url"
               placeholder="LinkedIn / Personal Website URL"
-              className="w-full p-3 rounded-lg  border border-gray-200"
+              className={`w-full p-3 rounded-lg border ${
+                formData.linkedin && !isValidUrl(formData.linkedin)
+                  ? "border-red-300 bg-red-50"
+                  : "border-gray-200"
+              }`}
               value={formData.linkedin}
               onChange={(e) =>
                 setFormData({ ...formData, linkedin: e.target.value })
               }
               required
             />
+            {formData.linkedin && !isValidUrl(formData.linkedin) && (
+              <p className="text-red-500 text-sm mt-1">
+                Please enter a valid URL
+              </p>
+            )}
+          </div>
+          <div className="relative">
+            <input
+              type="file"
+              id="resume"
+              accept=".pdf,.doc,.docx"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setFormData({ ...formData, resume: file });
+              }}
+            />
+            <label
+              htmlFor="resume"
+              className="w-full p-3 rounded-lg border border-gray-200 bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50"
+            >
+              {formData.resume ? (
+                <span className="text-green-600">✓ {formData.resume.name}</span>
+              ) : (
+                <span className="text-gray-500">
+                  Upload Resume (PDF, DOC, DOCX)
+                </span>
+              )}
+            </label>
           </div>
         </section>
 
@@ -151,13 +310,37 @@ export default function LeadForm() {
           />
         </section>
 
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">
+            {error}
+          </div>
+        )}
+
         <button
           type="submit"
-          className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors"
+          disabled={isSubmitting}
+          className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          Submit
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </form>
+      <style jsx global>{`
+        .country-select .select__control {
+          padding: 0.375rem;
+          border-color: #e5e7eb;
+          border-radius: 0.5rem;
+        }
+        .country-select .select__control:hover {
+          border-color: #d1d5db;
+        }
+        .country-select .select__control--is-focused {
+          border-color: #d1d5db;
+          box-shadow: 0 0 0 1px #d1d5db;
+        }
+        .country-select .select__menu {
+          border-radius: 0.5rem;
+        }
+      `}</style>
     </div>
   );
 }

@@ -18,7 +18,9 @@ export interface LeadFormData {
   lastName: string;
   email: string;
   linkedin: string;
+  country: string;
   visaCategories: VisaCategory[];
+  resume: File | null;
   message: string;
 }
 
