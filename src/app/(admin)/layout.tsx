@@ -7,20 +7,30 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r relative overflow-hidden">
+      <aside className="w-64 bg-white border-r relative overflow-hidden flex flex-col justify-between">
         {/* Curved gradient overlay */}
         <div className="absolute -top-48 -left-32 w-96 h-80 bg-[#e0f0bc]/80 rounded-full blur-3xl" />
 
         {/* Existing sidebar content */}
-        <div className="relative p-6">
-          <Link href="/" className="text-5xl text-secondary font-bold">
-            almă
-          </Link>
+        <div>
+          <div className="relative p-6">
+            <Link href="/" className="text-5xl text-secondary font-bold">
+              almă
+            </Link>
+          </div>
+          <nav className="relative mt-6 ml-2">
+            <SidebarLink href="/leads" label="Leads" />
+            <SidebarLink href="/settings" label="Settings" />
+          </nav>
         </div>
-        <nav className="relative mt-6 ml-2">
-          <SidebarLink href="/leads" label="Leads" />
-          <SidebarLink href="/settings" label="Settings" />
-        </nav>
+        <div className="p-6 border-t">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+              <span className="text-gray-600 font-medium">A</span>
+            </div>
+            <span className="text-sm font-medium">Admin</span>
+          </div>
+        </div>
       </aside>
 
       {/* Main content */}

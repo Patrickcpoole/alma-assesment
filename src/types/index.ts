@@ -7,6 +7,8 @@ export interface Lead extends Omit<AssesmentFormData, "resume"> {
   createdAt: string;
 }
 
+export type SortableField = "fullName" | "createdAt" | "status" | "country";
+
 export interface AssesmentFormData {
   firstName: string;
   lastName: string;

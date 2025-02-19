@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Lead } from "@/types";
 import {
   createColumnHelper,
@@ -12,6 +12,11 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { fetchLeads } from "@/common/data/mockLeads";
+import { SortableField } from "@/types";
+import { useDispatch } from "react-redux";
+import { updateLeadStatus } from "@/common/store/leadsSlice";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -22,6 +27,7 @@ interface LeadsTableProps {
   pageSize: number;
   pageCount: number;
   onPageChange: (page: number) => void;
+  onSortingChange: (sorting: SortingState) => void;
 }
 
 export default function LeadsTable({
@@ -33,12 +39,38 @@ export default function LeadsTable({
   pageSize,
   pageCount,
   onPageChange,
+  onSortingChange,
 }: LeadsTableProps) {
-  const [isClient, setIsClient] = useState(false);
+  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    if (pageIndex > 0) {
+      queryClient.prefetchQuery({
+        queryKey: ["leads", pageIndex - 1, pageSize, sorting],
+        queryFn: () =>
+          fetchLeads(
+            pageIndex - 1,
+            pageSize,
+            sorting[0]?.id as SortableField,
+            sorting[0]?.desc
+          ),
+      });
+    }
+
+    if (pageIndex < pageCount - 1) {
+      queryClient.prefetchQuery({
+        queryKey: ["leads", pageIndex + 1, pageSize, sorting],
+        queryFn: () =>
+          fetchLeads(
+            pageIndex + 1,
+            pageSize,
+            sorting[0]?.id as SortableField,
+            sorting[0]?.desc
+          ),
+      });
+    }
+  }, [pageIndex, pageSize, sorting, pageCount, queryClient]);
 
   const columnHelper = createColumnHelper<Lead>();
 
@@ -51,27 +83,46 @@ export default function LeadsTable({
       }),
       columnHelper.accessor("createdAt", {
         header: "Submitted",
-        cell: (info) => new Date(info.getValue()).toLocaleString(),
+        cell: (info) => new Date(info.getValue() as string).toLocaleString(),
       }),
       columnHelper.accessor("status", {
         header: "Status",
         cell: (info) => (
           <span
-            className={`px-2 py-1 rounded-full text-xs ${
+            className={`px-3 py-1 rounded-full text-xs ${
               info.getValue() === "PENDING"
-                ? "bg-yellow-100 text-yellow-800"
-                : "bg-green-100 text-green-800"
+                ? "bg-[#FFF8E6] text-[#B25E02]"
+                : "bg-[#E8F5E9] text-[#1B5E20]"
             }`}
           >
-            {info.getValue()}
+            {info.getValue() === "PENDING" ? "Pending" : "Reached Out"}
           </span>
         ),
       }),
       columnHelper.accessor("country", {
         header: "Country",
       }),
+      columnHelper.accessor("id", {
+        header: () => null,
+        cell: (info) => {
+          const lead = info.row.original;
+          return lead.status === "PENDING" ? (
+            <button
+              onClick={() => {
+                dispatch(
+                  updateLeadStatus({ id: lead.id, status: "REACHED_OUT" })
+                );
+                queryClient.invalidateQueries({ queryKey: ["leads"] });
+              }}
+              className="px-3 py-1 text-sm text-white bg-primary rounded-md hover:bg-secondary/90"
+            >
+              Reach Out
+            </button>
+          ) : null;
+        },
+      }),
     ],
-    [columnHelper]
+    [columnHelper, dispatch, queryClient]
   );
 
   const table = useReactTable({
@@ -84,12 +135,17 @@ export default function LeadsTable({
         pageSize,
       },
     },
-    onSortingChange: (updater) => setSorting(updater as SortingState),
+    onSortingChange: (updater) => {
+      const newSorting = updater as SortingState;
+      setSorting(newSorting);
+      onSortingChange(newSorting);
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     pageCount,
     manualPagination: true,
+    manualSorting: true,
   });
 
   if (isLoading) {
@@ -107,12 +163,21 @@ export default function LeadsTable({
     );
   }
 
-  if (!isClient) {
-    return null;
+  if (leads.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6 text-center">
+        <div className="space-y-3">
+          <p className="text-gray-500 text-lg">No leads found</p>
+          <p className="text-gray-400">
+            Try adjusting your search or filter criteria
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
       <table className="min-w-full">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -120,16 +185,24 @@ export default function LeadsTable({
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-6 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer"
+                  className="px-6 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer group"
                   onClick={header.column.getToggleSortingHandler()}
                 >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                  {{ asc: " 🔼", desc: " 🔽" }[
-                    header.column.getIsSorted() as string
-                  ] ?? null}
+                  <div className="flex items-center gap-1">
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                    {header.column.id !== "id" && (
+                      <span className="text-gray-400">
+                        {header.column.getIsSorted()
+                          ? header.column.getIsSorted() === "asc"
+                            ? "↓"
+                            : "↑"
+                          : "↕"}
+                      </span>
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>
@@ -149,23 +222,35 @@ export default function LeadsTable({
       </table>
 
       {/* Pagination Controls */}
-      <div className="px-6 py-4 flex items-center justify-between border-t">
+      <div className="px-6 py-4 flex items-center justify-end border-t gap-2">
         <button
           onClick={() => onPageChange(pageIndex - 1)}
           disabled={pageIndex === 0}
-          className="px-3 py-1 rounded border disabled:opacity-50"
+          className="p-2 text-gray-600 disabled:text-gray-300"
         >
-          Previous
+          ←
         </button>
-        <span>
-          Page {pageIndex + 1} of {pageCount}
-        </span>
+
+        {Array.from({ length: pageCount }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => onPageChange(i)}
+            className={`w-8 h-8 rounded ${
+              i === pageIndex
+                ? "bg-white text-secondary border border-secondary"
+                : "text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+
         <button
           onClick={() => onPageChange(pageIndex + 1)}
           disabled={pageIndex === pageCount - 1}
-          className="px-3 py-1 rounded border disabled:opacity-50"
+          className="p-2 text-gray-600 disabled:text-gray-300"
         >
-          Next
+          →
         </button>
       </div>
     </div>

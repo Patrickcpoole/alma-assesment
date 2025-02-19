@@ -3,7 +3,6 @@ import { Lead } from "@/types";
 
 export interface LeadsState {
   leads: Lead[];
-  isLoading: boolean;
 }
 
 const initialState: LeadsState = {
@@ -23,7 +22,6 @@ const initialState: LeadsState = {
     },
     // ... other initial leads if needed
   ],
-  isLoading: true,
 };
 
 const leadsSlice = createSlice({
@@ -37,21 +35,17 @@ const leadsSlice = createSlice({
       state,
       action: PayloadAction<{ id: string; status: Lead["status"] }>
     ) => {
-      const lead = state.leads.find((l) => l.id === action.payload.id);
-      if (lead) {
-        lead.status = action.payload.status;
-      }
-    },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
+      const { id, status } = action.payload;
+      state.leads = state.leads.map((lead) =>
+        lead.id === id ? { ...lead, status } : lead
+      );
     },
     initializeLeads: (state, action: PayloadAction<Lead[]>) => {
       state.leads = action.payload;
-      state.isLoading = false;
     },
   },
 });
 
-export const { addLead, updateLeadStatus, setLoading, initializeLeads } =
+export const { addLead, updateLeadStatus, initializeLeads } =
   leadsSlice.actions;
 export default leadsSlice.reducer;

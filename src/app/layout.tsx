@@ -16,8 +16,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Alma Immigration",
-  description: "Expert immigration services for extraordinary individuals",
+  title: "Alma Assessment",
+  description: "Alma Assessment Platform",
+  icons: {
+    icon: [
+      {
+        url: "https://cdn.prod.website-files.com/67899ab4e6c7ecc71a7add09/67a535546209b8a41217a98a_alma%20favicon.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

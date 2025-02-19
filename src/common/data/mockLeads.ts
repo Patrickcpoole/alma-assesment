@@ -1,4 +1,5 @@
-import { Lead } from "@/types";
+import { Lead, SortableField } from "@/types";
+import { store } from "@/common/store/store";
 
 export const mockLeads: Lead[] = [
   {
@@ -393,18 +394,65 @@ export const mockLeads: Lead[] = [
   },
 ];
 
-// Helper function to simulate API fetch
-export const fetchLeads = async (page: number, pageSize: number) => {
-  // Simulate network delay
+export const fetchLeads = async (
+  page: number,
+  pageSize: number,
+  sortField?: SortableField,
+  sortDesc?: boolean,
+  searchQuery?: string,
+  statusFilter?: string
+) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const start = (page - 1) * pageSize;
+  const storeLeads = store.getState().leads.leads;
+  let filteredLeads = [...storeLeads];
+
+  if (searchQuery) {
+    filteredLeads = filteredLeads.filter((lead) =>
+      `${lead.firstName} ${lead.lastName}`
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    );
+  }
+
+  if (statusFilter && statusFilter !== "all") {
+    filteredLeads = filteredLeads.filter(
+      (lead) => lead.status === statusFilter.toUpperCase()
+    );
+  }
+
+  if (sortField) {
+    filteredLeads.sort((a: Lead, b: Lead) => {
+      let aValue: string;
+      let bValue: string;
+
+      if (sortField === "fullName") {
+        aValue = `${a.firstName} ${a.lastName}`;
+        bValue = `${b.firstName} ${b.lastName}`;
+      } else if (sortField === "createdAt") {
+        aValue = a.createdAt;
+        bValue = b.createdAt;
+      } else {
+        aValue = a[sortField];
+        bValue = b[sortField];
+      }
+
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+
+      if (aValue < bValue) return sortDesc ? 1 : -1;
+      if (aValue > bValue) return sortDesc ? -1 : 1;
+      return 0;
+    });
+  }
+
+  const start = page * pageSize;
   const end = start + pageSize;
-  const paginatedLeads = mockLeads.slice(start, end);
+  const paginatedLeads = filteredLeads.slice(start, end);
 
   return {
     leads: paginatedLeads,
-    totalPages: Math.ceil(mockLeads.length / pageSize),
-    totalLeads: mockLeads.length,
+    totalPages: Math.ceil(filteredLeads.length / pageSize),
+    totalLeads: filteredLeads.length,
   };
 };

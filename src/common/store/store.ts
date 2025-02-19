@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import leadsReducer from "./leadsSlice";
 
 const loadState = () => {
@@ -23,8 +23,12 @@ const saveState = (state: RootState) => {
   }
 };
 
+const rootReducer = combineReducers({
+  leads: leadsReducer,
+});
+
 export const store = configureStore({
-  reducer: leadsReducer,
+  reducer: rootReducer,
   preloadedState: loadState(),
 });
 
@@ -32,5 +36,5 @@ store.subscribe(() => {
   saveState(store.getState());
 });
 
-export type RootState = ReturnType<typeof store.getState>;
+export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;

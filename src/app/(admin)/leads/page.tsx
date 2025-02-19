@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchLeads } from "@/common/data/mockLeads";
-
 import { SortingState } from "@tanstack/react-table";
+import { fetchLeads } from "@/common/data/mockLeads";
+import LeadsTable from "./components/LeadsTable";
+import { SortableField } from "@/types";
 import { Search } from "lucide-react";
 import Dropdown from "@/components/ui/Dropdown";
-import LeadsTable from "@/app/(admin)/leads/components/LeadsTable";
 
 const statusOptions = [
   { value: "all", label: "Status" },
@@ -18,26 +18,31 @@ const statusOptions = [
 export default function LeadsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 10;
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["leads", pageIndex, pageSize],
-    queryFn: () => fetchLeads(pageIndex + 1, pageSize),
+    queryKey: [
+      "leads",
+      pageIndex,
+      pageSize,
+      sorting,
+      searchQuery,
+      statusFilter,
+    ],
+    queryFn: () =>
+      fetchLeads(
+        pageIndex,
+        pageSize,
+        sorting[0]?.id as SortableField,
+        sorting[0]?.desc,
+        searchQuery,
+        statusFilter
+      ),
+    placeholderData: (prev) => prev,
+    staleTime: 0,
   });
-
-  const filteredLeads = useMemo(() => {
-    if (!data) return [];
-    return data.leads.filter((lead) => {
-      const matchesSearch = (lead.firstName + " " + lead.lastName)
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || lead.status === statusFilter.toUpperCase();
-      return matchesSearch && matchesStatus;
-    });
-  }, [data, searchQuery, statusFilter]);
 
   return (
     <div className="p-6">
@@ -67,7 +72,7 @@ export default function LeadsPage() {
       </div>
 
       <LeadsTable
-        leads={filteredLeads}
+        leads={data?.leads ?? []}
         sorting={sorting}
         setSorting={setSorting}
         isLoading={isLoading}
@@ -75,6 +80,7 @@ export default function LeadsPage() {
         pageSize={pageSize}
         pageCount={data?.totalPages ?? 0}
         onPageChange={setPageIndex}
+        onSortingChange={setSorting}
       />
     </div>
   );

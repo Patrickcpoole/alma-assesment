@@ -23,7 +23,7 @@ const Dropdown = forwardRef<HTMLButtonElement, DropdownProps>(
         <Select.Trigger
           ref={ref}
           className={cn(
-            "relative flex items-center w-28 py-2 pl-3 pr-9",
+            "relative flex items-center min-w-28 py-2 pl-3 pr-9",
             "rounded-lg border border-gray-200 bg-white",
             "focus:ring-2 focus:ring-primary/20 focus:border-primary/20",
             placeholder === "Select..." ? "text-gray-400" : "text-gray-700",
