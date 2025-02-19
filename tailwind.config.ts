@@ -14,6 +14,9 @@ export default {
         primary: "var(--primary)",
         secondary: "var(--secondary)",
       },
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+      },
     },
   },
   plugins: [],
