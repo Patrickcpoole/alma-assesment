@@ -37,3 +37,9 @@ export interface ButtonProps {
   className?: string;
   onClick?: () => void;
 }
+
+export interface AuthContextType {
+  isAuthenticated: boolean | null; // null represents loading state
+  login: (username: string, password: string) => boolean;
+  logout: () => void;
+}

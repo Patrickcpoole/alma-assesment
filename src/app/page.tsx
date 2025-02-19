@@ -1,28 +1,10 @@
 import Button from "@/components/ui/Button";
+import NavigationWrapper from "@/components/nav/NavigationWrapper";
 
-import Link from "next/link";
-import ArrowRightIcon from "@/components/icons/ArrowRightIcon";
 export default function Home() {
   return (
     <>
-      <nav className="bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link href="/" className="flex items-center">
-              <span className="text-4xl font-bold">almă</span>
-            </Link>
-            <div className="flex space-x-8">
-              <Button href="/assessment" size="lg">
-                Get Assessment
-                <ArrowRightIcon width="22" height="22" />
-              </Button>
-              <Button href="/login" size="lg" variant="outline">
-                Login
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <NavigationWrapper />
       <main className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center mb-16">

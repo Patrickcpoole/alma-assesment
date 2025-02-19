@@ -1,8 +1,8 @@
 "use client";
 
 import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
-import { updateLeadStatus, Lead } from "@/store/leadsSlice";
+import { RootState } from "@/common/store/store";
+import { updateLeadStatus, Lead } from "@/common/store/leadsSlice";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 

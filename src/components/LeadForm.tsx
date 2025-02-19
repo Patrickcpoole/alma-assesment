@@ -7,7 +7,9 @@ import { DocumentIcon } from "./icons/DocumentIcon";
 import { DiceIcon } from "./icons/DiceIcon";
 import { HeartIcon } from "./icons/HeartIcon";
 import dynamic from "next/dynamic";
-import { useCountries } from "@/hooks/useCountries";
+import { useCountries } from "@/common/hooks/useCountries";
+import { useDispatch } from "react-redux";
+import { addLead } from "@/common/store/leadsSlice";
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
@@ -35,6 +37,7 @@ const isValidUrl = (url: string): boolean => {
 export default function LeadForm() {
   const router = useRouter();
   const { countryOptions } = useCountries();
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState<LeadFormData>({
     firstName: "",
     lastName: "",
@@ -123,13 +126,15 @@ export default function LeadForm() {
         body: formDataToSend,
       });
 
-      console.log("form response", response);
-
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to submit form");
       }
+
+      console.log("lead data", data);
+
+      dispatch(addLead(data.lead));
 
       router.push("/assessment/success");
     } catch (err) {
@@ -160,7 +165,7 @@ export default function LeadForm() {
             <input
               type="text"
               placeholder="First Name"
-              className="w-full p-3 rounded-lg border border-gray-200"
+              className="w-full py-3.5 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
               value={formData.firstName}
               onChange={(e) =>
                 setFormData({ ...formData, firstName: e.target.value })
@@ -170,7 +175,7 @@ export default function LeadForm() {
             <input
               type="text"
               placeholder="Last Name"
-              className="w-full p-3 rounded-lg  border border-gray-200"
+              className="w-full py-3.5 px-3 rounded-lg  border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
               value={formData.lastName}
               onChange={(e) =>
                 setFormData({ ...formData, lastName: e.target.value })
@@ -180,7 +185,7 @@ export default function LeadForm() {
             <input
               type="email"
               placeholder="Email"
-              className={`w-full p-3 rounded-lg border ${
+              className={`w-full py-3.5 px-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary ${
                 formData.email && !isValidEmail(formData.email)
                   ? "border-red-300 bg-red-50"
                   : "border-gray-200"
@@ -199,8 +204,18 @@ export default function LeadForm() {
             <Select
               placeholder="Country of Citizenship"
               options={countryOptions}
-              className="country-select"
-              classNamePrefix="select"
+              classNames={{
+                control: (state) =>
+                  `!py-2 !px-3 !rounded-lg !border ${
+                    state.isFocused
+                      ? "!border-primary !shadow-none !ring-2 !ring-primary"
+                      : "!border-gray-200"
+                  } hover:!border-gray-300`,
+                menu: () => "!rounded-lg !mt-1",
+                input: () => "!m-0",
+                valueContainer: () => "!p-0",
+                singleValue: () => "!m-0",
+              }}
               value={countryOptions.find(
                 (option) => option.value === formData.country
               )}
@@ -216,7 +231,7 @@ export default function LeadForm() {
             <input
               type="url"
               placeholder="LinkedIn / Personal Website URL"
-              className={`w-full p-3 rounded-lg border ${
+              className={`w-full py-3.5 px-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary ${
                 formData.linkedin && !isValidUrl(formData.linkedin)
                   ? "border-red-300 bg-red-50"
                   : "border-gray-200"
@@ -246,7 +261,7 @@ export default function LeadForm() {
             />
             <label
               htmlFor="resume"
-              className="w-full p-3 rounded-lg border border-gray-200 bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50"
+              className="w-full py-3.5 px-3 rounded-lg border border-gray-200 bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50"
             >
               {formData.resume ? (
                 <span className="text-green-600">✓ {formData.resume.name}</span>
@@ -300,7 +315,7 @@ export default function LeadForm() {
           </div>
           <textarea
             rows={4}
-            className="w-full p-3 rounded border border-gray-200"
+            className="w-full py-2 px-3 rounded border border-gray-200"
             placeholder="What is your current status and when does it expire? What is your past immigration history? Are you currently employed or have a job offer? Is it for short term employment visa or both? Are there any timeline considerations?"
             value={formData.message}
             onChange={(e) =>
@@ -324,23 +339,6 @@ export default function LeadForm() {
           {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </form>
-      <style jsx global>{`
-        .country-select .select__control {
-          padding: 0.375rem;
-          border-color: #e5e7eb;
-          border-radius: 0.5rem;
-        }
-        .country-select .select__control:hover {
-          border-color: #d1d5db;
-        }
-        .country-select .select__control--is-focused {
-          border-color: #d1d5db;
-          box-shadow: 0 0 0 1px #d1d5db;
-        }
-        .country-select .select__menu {
-          border-radius: 0.5rem;
-        }
-      `}</style>
     </div>
   );
 }

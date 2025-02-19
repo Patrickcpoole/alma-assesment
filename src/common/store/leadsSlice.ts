@@ -42,6 +42,7 @@ const leadsSlice = createSlice({
   initialState,
   reducers: {
     addLead: (state, action: PayloadAction<Lead>) => {
+      console.log("action.payload | adding lead", action.payload);
       state.leads.push(action.payload);
     },
     updateLeadStatus: (

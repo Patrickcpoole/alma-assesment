@@ -1,7 +1,7 @@
 "use client";
 
 import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
+import { RootState } from "@/common/store/store";
 import { useState, useMemo } from "react";
 import { Lead } from "@/types";
 import {

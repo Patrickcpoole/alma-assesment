@@ -2,14 +2,11 @@ import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { addLead } from "@/store/leadsSlice";
-import { store } from "@/store/store";
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
 
-    // Get form fields
     const firstName = formData.get("firstName") as string;
     const lastName = formData.get("lastName") as string;
     const email = formData.get("email") as string;
@@ -19,7 +16,6 @@ export async function POST(request: Request) {
     const message = formData.get("message") as string;
     const resume = formData.get("resume") as File;
 
-    // Basic server-side validation
     if (
       !firstName ||
       !lastName ||
@@ -35,23 +31,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // Handle resume file
     const bytes = await resume.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create unique filename
     const uniqueId = uuidv4();
     const fileExtension = resume.name.split(".").pop();
     const fileName = `${uniqueId}.${fileExtension}`;
 
-    // Create uploads directory if it doesn't exist
     const uploadDir = join(process.cwd(), "public", "uploads");
     await mkdir(uploadDir, { recursive: true });
 
-    // Save file to uploads directory
     await writeFile(join(uploadDir, fileName), buffer);
 
-    // Create lead object
     const lead = {
       id: uniqueId,
       firstName,
@@ -65,9 +56,6 @@ export async function POST(request: Request) {
       status: "PENDING" as const,
       createdAt: new Date().toISOString(),
     };
-
-    // Add lead to Redux store
-    store.dispatch(addLead(lead));
 
     return NextResponse.json({ success: true, lead });
   } catch (error) {
