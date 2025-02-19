@@ -144,7 +144,7 @@ export default function AssesmentForm() {
   };
 
   return (
-    <div className="w-full bg-white">
+    <div className="w-full bg-white ">
       <form
         onSubmit={handleSubmit}
         className="max-w-2xl mx-auto px-4 py-8 space-y-12"
