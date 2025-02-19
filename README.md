@@ -1,4 +1,4 @@
-# Project Name
+# Alma Coding Project
 
 ## Table of Contents
 
