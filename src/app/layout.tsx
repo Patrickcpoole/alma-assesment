@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ReduxProvider } from "@/common/providers/ReduxProvider";
+import QueryProvider from "@/common/providers/QueryProvider";
 import "./globals.css";
 import { AuthProvider } from "@/common/providers/AuthProvider";
 
@@ -30,7 +31,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <ReduxProvider>{children}</ReduxProvider>
+          <ReduxProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </ReduxProvider>
         </AuthProvider>
       </body>
     </html>

@@ -3,6 +3,7 @@ import { Lead } from "@/types";
 
 export interface LeadsState {
   leads: Lead[];
+  isLoading: boolean;
 }
 
 const initialState: LeadsState = {
@@ -20,21 +21,9 @@ const initialState: LeadsState = {
       createdAt: "2024-02-02T14:45:00",
       country: "Mexico",
     },
-    {
-      id: "2",
-      firstName: "Bahar",
-      lastName: "Zamir",
-      email: "bahar.zamir@example.com",
-      linkedin: "https://www.linkedin.com/in/bahar-zamir/",
-      visaCategories: ["EB-1A"],
-      resumeUrl: "https://www.example.com/bahar-zamir-resume.pdf",
-      message: "I am interested in the EB-1A visa category.",
-      status: "PENDING",
-      country: "Mexico",
-      createdAt: "2024-02-02T14:45:00",
-    },
-    // Add more initial leads to match the design
+    // ... other initial leads if needed
   ],
+  isLoading: true,
 };
 
 const leadsSlice = createSlice({
@@ -42,7 +31,6 @@ const leadsSlice = createSlice({
   initialState,
   reducers: {
     addLead: (state, action: PayloadAction<Lead>) => {
-      console.log("action.payload | adding lead", action.payload);
       state.leads.push(action.payload);
     },
     updateLeadStatus: (
@@ -54,8 +42,16 @@ const leadsSlice = createSlice({
         lead.status = action.payload.status;
       }
     },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload;
+    },
+    initializeLeads: (state, action: PayloadAction<Lead[]>) => {
+      state.leads = action.payload;
+      state.isLoading = false;
+    },
   },
 });
 
-export const { addLead, updateLeadStatus } = leadsSlice.actions;
+export const { addLead, updateLeadStatus, setLoading, initializeLeads } =
+  leadsSlice.actions;
 export default leadsSlice.reducer;

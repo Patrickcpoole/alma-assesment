@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LeadFormData, VisaCategory } from "@/types";
-import { DocumentIcon } from "./icons/DocumentIcon";
-import { DiceIcon } from "./icons/DiceIcon";
-import { HeartIcon } from "./icons/HeartIcon";
+import { AssesmentFormData, VisaCategory } from "@/types";
+import { DocumentIcon } from "../../../components/icons/DocumentIcon";
+import { DiceIcon } from "../../../components/icons/DiceIcon";
+import { HeartIcon } from "../../../components/icons/HeartIcon";
 import dynamic from "next/dynamic";
 import { useCountries } from "@/common/hooks/useCountries";
 import { useDispatch } from "react-redux";
@@ -34,11 +34,11 @@ const isValidUrl = (url: string): boolean => {
   }
 };
 
-export default function LeadForm() {
+export default function AssesmentForm() {
   const router = useRouter();
   const { countryOptions } = useCountries();
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState<LeadFormData>({
+  const [formData, setFormData] = useState<AssesmentFormData>({
     firstName: "",
     lastName: "",
     email: "",

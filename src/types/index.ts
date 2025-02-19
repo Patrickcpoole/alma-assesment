@@ -1,20 +1,13 @@
 export type VisaCategory = "O-1" | "EB-1A" | "EB-2 NIW" | "I don't know";
 
-export interface Lead {
+export interface Lead extends Omit<AssesmentFormData, "resume"> {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  linkedin: string;
-  visaCategories: VisaCategory[];
-  resumeUrl: string;
-  message: string;
-  country: string;
   status: "PENDING" | "REACHED_OUT";
+  resumeUrl: string;
   createdAt: string;
 }
 
-export interface LeadFormData {
+export interface AssesmentFormData {
   firstName: string;
   lastName: string;
   email: string;
@@ -39,7 +32,7 @@ export interface ButtonProps {
 }
 
 export interface AuthContextType {
-  isAuthenticated: boolean | null; // null represents loading state
+  isAuthenticated: boolean | null;
   login: (username: string, password: string) => boolean;
   logout: () => void;
 }
