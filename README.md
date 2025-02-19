@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Project Name
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Running the Application Locally](#running-the-application-locally)
+- [Design Decisions](#design-decisions)
+- [Additional Documentation](#additional-documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Overview
+
+This repository contains the source code for my Alma coding assesment. The application is built using modern web technologies, leveraging React, Next.js, and Material UI for the frontend, while incorporating state management with Redux Toolkit and server-state management with React Query.
+
+## Tech Stack
+
+The project utilizes the following dependencies:
+
+```json
+"dependencies": {
+  "@emotion/react": "^11.14.0",
+  "@emotion/styled": "^11.14.0",
+  "@mui/icons-material": "^6.4.5",
+  "@mui/material": "^6.4.5",
+  "@radix-ui/react-select": "^2.1.6",
+  "@reduxjs/toolkit": "^2.5.1",
+  "@tanstack/react-query": "^5.66.7",
+  "@tanstack/react-table": "^8.21.2",
+  "class-variance-authority": "^0.7.1",
+  "clsx": "^2.1.1",
+  "countries-list": "^3.1.1",
+  "lucide-react": "^0.475.0",
+  "next": "15.1.7",
+  "react": "^19.0.0",
+  "react-dom": "^19.0.0",
+  "react-redux": "^9.2.0",
+  "react-select": "^5.10.0",
+  "tailwind-merge": "^3.0.1",
+  "uuid": "^11.0.5"
+}
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
+Ensure you have the following installed before proceeding:
+
+- Node.js (>= 18.x)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/your-repo/project-name.git
+   ```
+2. Navigate into the project directory:
+   ```sh
+   cd project-name
+   ```
+3. Install dependencies:
+   ```sh
+   npm install
+   ```
+   or using yarn:
+   ```sh
+   yarn install
+   ```
+
+## Running the Application Locally
+
+### Development Mode
+
+To start the development server:
+
+```sh
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Or if using yarn:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+yarn dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The application will be available at `http://localhost:3000/`.
 
-## Learn More
+### Production Mode
 
-To learn more about Next.js, take a look at the following resources:
+To build and serve the application in production mode:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sh
+npm run build
+npm run start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Or if using yarn:
 
-## Deploy on Vercel
+```sh
+yarn build
+yarn start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Design Decisions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For detailed insights into the architectural and design decisions made in this project, refer to the [Design Document](./docs/DESIGN.md).
+
+## Additional Documentation
+
+- **API Documentation**: [API_DOCS.md](./docs/API_DOCS.md)
+- **Component Guide**: [COMPONENTS.md](./docs/COMPONENTS.md)
+
+## Contributing
+
+Contributions are welcome! Please refer to [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for guidelines.
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
